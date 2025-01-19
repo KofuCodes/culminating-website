@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Crimson+Text:italic@1&display=swap');
+
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Crimson Text', serif;
+            background: linear-gradient(135deg, #f5f5f5 0%, #e6e6e6 100%);
+            position: relative;
+            overflow: hidden;
+            padding: 20px;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(207, 207, 207, 0.2) 0%, rgba(207, 207, 207, 0) 70%);
+            border-radius: 50%;
+            z-index: 0;
+        }
+
+        body::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 1px;
+            height: 100%;
+            background: linear-gradient(to bottom, 
+                transparent 0%,
+                rgba(0, 0, 0, 0.1) 30%,
+                rgba(0, 0, 0, 0.1) 70%,
+                transparent 100%
+            );
+        }
+
+        #content-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            min-height: 100vh;
+            padding: 20vh 0 10vh 0;  /* Adjusted padding */
+            box-sizing: border-box;
+            width: 100%;
+        }
+
+        #word-container {
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1;
+            width: 80%;
+            max-width: 800px;
+            position: relative;
+            margin-bottom: 100px;  /* Space between text and button */
+        }
+
+        .word {
+            position: absolute;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            color: #2c2c2c;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            letter-spacing: 0.1em;
+            text-align: center;
+            width: 100%;
+            padding: 0 20px;
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .word span {
+            font-size: 4.5rem;
+            line-height: 1.2;
+            display: block;
+            max-width: 100%;
+            word-wrap: break-word;
+        }
+
+        @media (max-width: 768px) {
+            .word span {
+                font-size: 3.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .word span {
+                font-size: 2.5rem;
+            }
+        }
+
+        .word.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .word.fade-out {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+
+        button {
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            background-color: transparent;
+            color: #4a4a4a;
+            border: 1px solid #4a4a4a;
+            border-radius: 0;
+            transition: all 0.3s ease;
+            font-family: 'Crimson Text', serif;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+            margin-top: auto;  /* Push button to bottom */
+        }
+
+        button::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background-color: #4a4a4a;
+            transition: transform 0.3s ease;
+            transform: scaleX(0);
+            transform-origin: right;
+        }
+
+        button:hover {
+            background-color: rgba(74, 74, 74, 0.05);
+        }
+
+        button:hover::after {
+            transform: scaleX(1);
+            transform-origin: left;
+        }
+
+        .corner {
+            position: fixed;
+            width: 50px;
+            height: 50px;
+            border: 1px solid rgba(74, 74, 74, 0.3);
+        }
+
+        .corner-tl {
+            top: 20px;
+            left: 20px;
+            border-right: none;
+            border-bottom: none;
+        }
+
+        .corner-tr {
+            top: 20px;
+            right: 20px;
+            border-left: none;
+            border-bottom: none;
+        }
+
+        .corner-bl {
+            bottom: 20px;
+            left: 20px;
+            border-right: none;
+            border-top: none;
+        }
+
+        .corner-br {
+            bottom: 20px;
+            right: 20px;
+            border-left: none;
+            border-top: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="corner corner-tl"></div>
+    <div class="corner corner-tr"></div>
+    <div class="corner corner-bl"></div>
+    <div class="corner corner-br"></div>
+    <div id="content-wrapper">
+        <div id="word-container"></div>
+        <button onclick="showNewWord()">Next Word</button>
+    </div>
+
+    <script>
+        const words = [
+            "Preoccupied with a single leaf... you won't see the tree. Preoccupied with a single tree... you'll miss the entire forest.", "All truly strong people are kind.", "Strength bends to kindness", "Live on and endure the shadows! And brightness shall come your way.", "The more you squint your eyes in desperation to see, the more obscured the answer becomes. If something’s too obscure too see… Then try closing your eyes.", 
+            "Each Path born is by heaven perfectly decided and at once perfectly free. As long as everything is left up to heaven", "Until death all defeat is psychological", "If you are tired, then do it tired", "It may seem difficult at first but everything is difficult at first", "A river cuts through a rock, not because of its power, but because of its persistence",
+            "To become who you want to be, you must sacrifice who you are", "Being incomplete is what pushes us onward to the next something.", "If we were even perfectly satisfied, what meaning would the rest of our lives hold", "Whether that life was blessed or not, everyone is born into this world.", "Life has no value if you think only of yourself.",
+            "There is no light for those who do not know darkness.", "There is no limit to technique. There is always room for improvement.", "Swimming in the middle of an ocean, one can never realize how vast it truly is.", "What is the meaning of “strength”? It’s to have a mind that doesn’t sway, while continuing to move and change."
+        ];
+
+        let currentIndex = -1;
+        let lastIndex = -1;
+        let currentWord = null;
+
+        function getRandomIndex(exclude) {
+            let newIndex;
+            do {
+                newIndex = Math.floor(Math.random() * words.length);
+            } while (newIndex === exclude);
+            return newIndex;
+        }
+
+        function showNewWord() {
+            if (currentWord) {
+                const oldWord = currentWord;
+                oldWord.classList.remove('visible');
+                oldWord.classList.add('fade-out');
+                setTimeout(() => {
+                    oldWord.remove();
+                }, 500);
+            }
+
+            currentIndex = getRandomIndex(lastIndex);
+            lastIndex = currentIndex;
+            
+            const wordElement = document.createElement('div');
+            wordElement.className = 'word';
+            
+            const textSpan = document.createElement('span');
+            textSpan.textContent = words[currentIndex];
+            wordElement.appendChild(textSpan);
+
+            document.getElementById('word-container').appendChild(wordElement);
+            
+            const adjustFontSize = () => {
+                const span = textSpan;
+                let fontSize = 4.5;
+                const maxWidth = wordElement.offsetWidth;
+                const containerHeight = document.getElementById('word-container').offsetHeight;
+                
+                span.style.fontSize = `${fontSize}rem`;
+                
+                // Check both width and height constraints
+                while ((span.scrollWidth > maxWidth || span.scrollHeight > containerHeight) && fontSize > 1.5) {
+                    fontSize -= 0.25;
+                    span.style.fontSize = `${fontSize}rem`;
+                }
+            };
+            
+            requestAnimationFrame(() => {
+                adjustFontSize();
+                wordElement.classList.add('visible');
+            });
+
+            currentWord = wordElement;
+        }
+    </script>
+</body>
+</html>
